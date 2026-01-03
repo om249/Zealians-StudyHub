@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>About Us | Zealians StudyHub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+
+{% if session.get('role') in ['admin', 'faculty'] %}
+  {% include 'nav_admin.html' %}
+{% else %}
+  {% include 'nav_student.html' %}
+{% endif %}
+
+<main class="max-w-5xl mx-auto pt-32 px-6 pb-20">
+
+  <!-- ABOUT US -->
+  <h1 class="text-4xl font-bold text-indigo-600 mb-6 text-center">
+    About Zealians StudyHub
+  </h1>
+
+  <div class="bg-white p-8 rounded-xl shadow space-y-6 mb-10">
+
+    <p class="text-gray-700 text-lg">
+      <b>Zealians StudyHub</b> is a web-based educational resource platform
+      designed to provide students and faculty with a centralized system
+      for managing academic content such as notes, video lectures, and MCQ tests.
+    </p>
+
+    <p class="text-gray-700">
+      The platform primarily supports <b>MCA, MBA, and IMCA</b> courses and
+      helps streamline digital learning by organizing study material
+      subject-wise and chapter-wise.
+    </p>
+
+    <h2 class="text-2xl font-semibold text-indigo-500">
+      Key Features
+    </h2>
+
+    <ul class="list-disc list-inside text-gray-700 space-y-2">
+      <li>Role-based access for Admin and Students</li>
+      <li>Course, subject, and chapter-wise content organization</li>
+      <li>Secure login with email verification and approval system</li>
+      <li>Online MCQ tests with result tracking</li>
+      <li>Centralized and structured learning resources</li>
+    </ul>
+
+    <h2 class="text-2xl font-semibold text-indigo-500">
+      Objective
+    </h2>
+
+    <p class="text-gray-700">
+      The objective of Zealians StudyHub is to enhance the academic learning
+      experience by providing a reliable digital platform that reduces
+      manual work, improves accessibility, and ensures structured content delivery.
+    </p>
+
+  </div>
+
+  <!-- CONTACT US -->
+  <h2 class="text-3xl font-bold text-indigo-600 mb-4 text-center">
+    Contact Us
+  </h2>
+
+  <div class="bg-white p-8 rounded-xl shadow text-gray-700 space-y-3">
+
+    <p class="font-semibold">
+      ZEAL Institute Of Business Administration,  
+      Computer Application & Research
+    </p>
+
+    <p>
+      Survey No. 39, Narhegaon,<br>
+      Taluka – Haveli,<br>
+      Pune (Maharashtra) – 411041
+    </p>
+
+    <p>
+      <b>Phone:</b><br>
+      (020) 67206031 / 33<br>
+      8329302754<br>
+      8856930890<br>
+      9890924744<br>
+      9850409350
+    </p>
+
+    <p>
+      <b>Working Hours:</b><br>
+      Mon – Sat, 9.00 AM – 5.00 PM
+    </p>
+
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="bg-indigo-600 text-white py-4 text-center">
+  © {{ datetime.utcnow().year }} Zealians StudyHub. All Rights Reserved.
+</footer>
+
+</body>
+</html>

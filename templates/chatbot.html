@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Chatbot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+{% if session.get('role') == 'admin' %}
+  {% include 'nav_admin.html' %}
+{% else %}
+  {% include 'nav_student.html' %}
+{% endif %}
+
+{% include 'nav.html' %}
+
+<div class="pt-28 max-w-3xl mx-auto">
+
+  <h1 class="text-3xl font-bold mb-6 text-center text-indigo-700">AI Study Assistant</h1>
+
+  <div id="chatBox" class="bg-white p-6 rounded-xl shadow h-[480px] overflow-y-auto space-y-4">
+
+    <!-- Default welcome message -->
+    <div class="bg-indigo-100 p-3 rounded-lg max-w-[80%]">
+      👋 Hello! I am your Study Assistant. Ask anything about MCA / MBA / IMCA subjects!
+    </div>
+
+  </div>
+
+  <!-- Input box -->
+  <div class="mt-4 flex">
+    <input id="userInput" 
+           type="text" 
+           placeholder="Ask your question..." 
+           class="w-full p-3 border rounded-l-xl focus:outline-none">
+
+    <button onclick="sendMessage()" 
+            class="px-6 bg-indigo-600 text-white rounded-r-xl hover:bg-indigo-700">
+      Send
+    </button>
+  </div>
+
+</div>
+
+<script>
+function sendMessage() {
+  const input = document.getElementById("userInput");
+  const chatBox = document.getElementById("chatBox");
+  const text = input.value.trim();
+  if (!text) return;
+
+  // User message
+  chatBox.innerHTML += `
+    <div class="text-right">
+      <div class="inline-block bg-indigo-600 text-white p-3 rounded-lg max-w-[80%]">
+        ${text}
+      </div>
+    </div>
+  `;
+  input.value = "";
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  // Send to backend
+  fetch("/chatbot_api", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ message: text })
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("Network error");
+    return res.json();
+  })
+  .then(data => {
+    chatBox.innerHTML += `
+      <div class="bg-indigo-100 p-3 rounded-lg max-w-[80%]">
+        ${data.reply}
+      </div>
+    `;
+    chatBox.scrollTop = chatBox.scrollHeight;
+  })
+  .catch(err => {
+    chatBox.innerHTML += `
+      <div class="bg-red-100 text-red-700 p-3 rounded-lg max-w-[80%]">
+        Server error. Please try again.
+      </div>
+    `;
+  });
+}
+</script>
+
+
+</body>
+</html>

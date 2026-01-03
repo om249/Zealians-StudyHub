@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Verify Email — Zealians StudyHub</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    .toast {
+      position: fixed;
+      right: 1rem;
+      top: 1rem;
+      z-index: 9999;
+    }
+
+    .toast-inner {
+      min-width: 240px;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+      transition: opacity .25s ease;
+      box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+
+  <div class="max-w-md w-full bg-white p-8 rounded-xl shadow-lg">
+
+    <h2 class="text-2xl font-semibold text-indigo-700 mb-2">Verify Your Email</h2>
+
+    <p class="text-gray-600 mb-4">
+      Enter the 6-digit code we sent to:
+      <strong id="emailText"></strong>
+    </p>
+
+    <form id="verifyForm" method="POST" action="/verify" class="space-y-4">
+
+      <!-- OTP Input: Numeric Only -->
+      <input id="otpInput" type="text" name="otp" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" required
+        class="w-full p-3 border rounded focus:ring-indigo-500" placeholder="Enter OTP" />
+
+      <div class="flex items-center justify-between text-sm">
+        <div class="text-gray-600">
+          OTP valid for <span id="countdown">10:00</span>
+        </div>
+
+        <button id="resendBtn" type="button" class="text-indigo-600 hover:underline">
+          Resend
+        </button>
+      </div>
+
+      <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded transition">
+        Verify & Continue
+      </button>
+    </form>
+
+    <p class="text-sm text-gray-500 mt-4">
+      Didn't receive the email? Check spam or click
+      <span id="resendInline" class="text-indigo-600 hover:underline cursor-pointer">Resend</span>.
+    </p>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    /* ----------------- SHOW TOAST ----------------- */
+    function showToast(message, type = "info", duration = 3000) {
+      const toastContainer = document.getElementById("toast");
+      const toast = document.createElement("div");
+
+      toast.className = "toast-inner " +
+        (type === "error"
+          ? "bg-red-50 border-l-4 border-red-600 text-red-700"
+          : "bg-white border-l-4 border-indigo-600 text-gray-900"
+        );
+
+      toast.innerHTML = message;
+      toast.style.opacity = "1";
+
+      toastContainer.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 250);
+      }, duration);
+    }
+
+    /* -------------- LOAD EMAIL FROM SERVER -------------- */
+    fetch("/_pending_email")
+      .then(res => res.json())
+      .then(data => {
+        if (data.email) document.getElementById("emailText").textContent = data.email;
+      });
+
+    /* -------------------- COUNTDOWN TIMER -------------------- */
+    let expiryTimestamp = Date.now() + 10 * 60 * 1000;
+    let timer;
+
+    function startTimer(seconds) {
+      expiryTimestamp = Date.now() + seconds * 1000;
+
+      if (timer) clearInterval(timer);
+
+      timer = setInterval(() => {
+        let remaining = Math.floor((expiryTimestamp - Date.now()) / 1000);
+
+        if (remaining < 0) remaining = 0;
+
+        const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
+        const ss = String(remaining % 60).padStart(2, "0");
+
+        document.getElementById("countdown").textContent = mm + ":" + ss;
+
+        if (remaining <= 0) {
+          clearInterval(timer);
+          showToast("OTP expired. Please resend.", "error");
+        }
+      }, 500);
+    }
+
+    startTimer(600); // default 10 minutes
+
+    /* ------------------- RESEND OTP ---------------------- */
+    document.getElementById("resendBtn").addEventListener("click", resendOtp);
+    document.getElementById("resendInline").addEventListener("click", resendOtp);
+
+    async function resendOtp() {
+      const btn = document.getElementById("resendBtn");
+      btn.disabled = true;
+      btn.textContent = "Sending...";
+
+      const res = await fetch("/resend_otp", {
+        method: "POST",
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      });
+
+      const data = await res.json().catch(() => ({ success: false, message: "Server error" }));
+
+      if (data.success) {
+        showToast("OTP sent successfully.");
+        startTimer(data.expires_in || 600);
+      } else {
+        showToast(data.message || "Failed to send OTP", "error");
+      }
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = "Resend";
+      }, 3000);
+    }
+
+    /* ------ NUMERIC ONLY INPUT FOR OTP (Option A) ------ */
+    document.getElementById("otpInput").addEventListener("input", function () {
+      this.value = this.value.replace(/[^0-9]/g, "").slice(0, 6);
+    });
+  </script>
+
+</body>
+
+</html>

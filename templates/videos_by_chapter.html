@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>{{ chapter.title }} – Videos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+
+  {% if session.get('role') in ['admin', 'faculty'] %}
+  {% include 'nav_admin.html' %}
+  {% else %}
+  {% include 'nav_student.html' %}
+  {% endif %}
+
+  <main class="pt-28 max-w-6xl mx-auto px-6">
+
+    <!-- HEADER -->
+    <div class="justify-between items-center mb-6">
+      <a href="/videos/{{ subject._id }}"
+        class="inline-flex items-center gap-2 text-indigo-600   hover:text-red-500 font-bold text-lg">
+        ← Back
+      </a>
+
+
+      <div>
+        <h1 class="text-3xl font-bold text-indigo-700 text-center mb-5">
+          {{ chapter.title }}
+        </h1>
+        <!-- <p class="text-gray-500">Subject: {{ subject.name }}</p> -->
+      </div>
+
+
+
+
+      {% if session.get('role') in ['admin', 'faculty'] %}
+      <div class="flex justify-center mb-8">
+        <a href="/admin/upload_video?chapter_id={{ chapter._id }}"
+          class="px-5 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+          + Upload Video
+        </a>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- MAIN VIDEO PLAYER (only one) -->
+    <div id="video-player" class="mb-8 hidden">
+      <iframe id="playerFrame" class="w-full h-[450px] rounded-xl" src="" allowfullscreen>
+      </iframe>
+    </div>
+
+    {% if videos %}
+    <div class="space-y-4">
+      {% for v in videos %}
+      <div onclick="playVideo('{{ v.url }}')"
+        class="flex gap-4 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+
+        <!-- Thumbnail -->
+        <img src="https://img.youtube.com/vi/{{ v.url.split('v=')[1] }}/hqdefault.jpg" class="w-40 rounded-lg">
+
+        <!-- Info -->
+        <div>
+          <h3 class="font-semibold text-lg">{{ v.title }}</h3>
+          <p class="text-sm text-gray-500">
+            Semester: {{ v.semester }}
+          </p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <p class="text-gray-500 text-center mt-20">
+      No videos uploaded for this chapter yet.
+    </p>
+    {% endif %}
+
+  </main>
+
+  <script>
+    function playVideo(url) {
+      const iframe = document.getElementById("playerFrame");
+      const container = document.getElementById("video-player");
+
+      iframe.src = url.replace("watch?v=", "embed/");
+      container.classList.remove("hidden");
+
+      container.scrollIntoView({ behavior: "smooth" });
+    }
+  </script>
+
+
+</body>
+
+</html>

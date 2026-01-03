@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Chapters</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+  {% include 'nav_admin.html' %}
+  {% include 'nav.html' %}
+
+  <div class="max-w-5xl mx-auto pt-28 px-6">
+
+    <div class="bg-white p-8 rounded-xl shadow">
+
+      <!-- HEADER -->
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-2xl font-bold">{{ subject.name }}</h2>
+          <p class="text-gray-500">Course: {{ subject.course }}</p>
+        </div>
+
+        {% if session.role == 'admin' %}
+        <button onclick="toggleChapterForm()" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+          + Add Chapter
+        </button>
+        {% endif %}
+      </div>
+
+      <!-- FLASH MESSAGES -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+      <div class="mb-4 p-3 rounded bg-green-100 text-green-700">
+        {{ message }}
+      </div>
+      {% endfor %}
+      {% endwith %}
+
+      <!-- ADD CHAPTER FORM (HIDDEN) -->
+      {% if session.role == 'admin' %}
+      <div id="chapterForm" class="hidden mb-8">
+        <form method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+          <input name="chapter_no" type="number" min="1" required placeholder="Chapter No" class="border p-3 rounded">
+
+          <input name="title" required placeholder="Chapter Title" class="border p-3 rounded md:col-span-2">
+
+          <button class="md:col-span-3 bg-indigo-600 text-white py-3 rounded hover:bg-indigo-700">
+            Add Chapter
+          </button>
+
+        </form>
+      </div>
+      {% endif %}
+
+      <!-- CHAPTER LIST -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        {% for c in chapters %}
+        <a href="/notes/chapter/{{ c._id }}"
+          class="block p-5 border rounded-xl hover:shadow-md hover:border-indigo-400 transition">
+
+          <p class="font-semibold text-indigo-600">
+            Chapter {{ c.chapter_no }}
+          </p>
+          <p class="text-gray-700 mt-1">
+            {{ c.title }}
+          </p>
+
+          <p class="text-sm text-gray-400 mt-2">
+            Click to view content
+          </p>
+        </a>
+        {% endfor %}
+
+        {% if chapters|length == 0 %}
+        <p class="text-gray-500">No chapters added yet.</p>
+        {% endif %}
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    function toggleChapterForm() {
+      document.getElementById("chapterForm").classList.toggle("hidden");
+    }
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+
+  {% include 'nav_admin.html' %}
+  {% include 'nav.html' %}
+
+  <div class="max-w-7xl mx-auto pt-28 px-6">
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Admin Dashboard</h1>
+
+    <!-- PROFILE CARD -->
+    <div class="bg-white p-6 rounded-2xl shadow flex items-center justify-between">
+
+      <div class="flex items-center space-x-6">
+        {% if admin.photo_url %}
+        <img src="{{ admin.photo_url }}"
+          class="w-24 h-24 rounded-full object-cover border-4 border-indigo-600 shadow" />
+        {% else %}
+        <div class="w-24 h-24 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500
+                    flex items-center justify-center text-white text-3xl font-semibold">
+          {{ admin.name[:1] }}{{ admin.name.split(' ')[-1][:1] }}
+        </div>
+        {% endif %}
+
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800">{{ admin.name }}</h2>
+          <p class="text-gray-500">{{ admin.email }}</p>
+
+          <div class="mt-3 flex flex-wrap gap-3">
+            <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">
+              Faculty / Admin
+            </span>
+            <span class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700">
+              {{ admin.department or "Department Not Set" }}
+            </span>
+            <span class="px-3 py-1 text-sm rounded-full bg-purple-100 text-purple-700">
+              {{ admin.subject or "Subject Not Set" }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <a href="/admin/profile/edit" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">
+        Edit Profile
+      </a>
+    </div>
+
+    <!-- ================= PENDING STUDENT APPROVALS (ADDED) ================= -->
+    <h2 class="text-xl font-semibold mt-10 mb-4">Pending Student Approvals</h2>
+
+    {% if pending_students|length == 0 %}
+    <p class="text-gray-500">No pending students.</p>
+    {% else %}
+    <div class="space-y-4 mb-10">
+      {% for s in pending_students %}
+      <div class="border rounded-lg p-5 bg-white shadow-sm">
+
+        <div class="flex justify-between items-start">
+
+          <!-- STUDENT INFO -->
+          <div>
+            <p class="font-semibold text-lg">{{ s.name }}</p>
+            <p class="text-sm text-gray-600">{{ s.email }}</p>
+            <p class="text-sm">Course: {{ s.course }}</p>
+
+            {% set id_path = s.get('id_card_url') %}
+
+            {% if id_path %}
+            <button onclick="document.getElementById('idcard-{{ s._id }}').classList.toggle('hidden')"
+              class="mt-2 text-indigo-600 underline">
+              View ID Card
+            </button>
+
+            <div id="idcard-{{ s._id }}" class="hidden mt-3">
+              {% if id_path.endswith('.pdf') %}
+              <iframe src="{{ id_path }}" class="w-full h-80 border rounded">
+              </iframe>
+              {% else %}
+              <img src="{{ id_path }}" class="max-w-sm border rounded shadow">
+              {% endif %}
+            </div>
+            {% else %}
+            <p class="text-sm text-red-600 mt-2">❌ ID Card not uploaded</p>
+            {% endif %}
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="flex gap-4">
+
+            <!-- APPROVE -->
+            <form method="POST" action="/admin/approve_student">
+              <input type="hidden" name="id" value="{{ s._id }}">
+              <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                Approve
+              </button>
+            </form>
+
+            <!-- REJECT -->
+            <form method="POST" action="/admin/reject_student" class="flex flex-col gap-2">
+              <input type="hidden" name="id" value="{{ s._id }}">
+
+              <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                Reject
+              </button>
+
+              <input name="reason" placeholder="Reason for rejection" required class="border p-2 text-sm rounded w-56">
+            </form>
+
+          </div>
+
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <!-- ================= END PENDING STUDENTS ================= -->
+
+    <!-- STATS SECTION -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 mb-10">
+
+      <div class="bg-white p-6 rounded-2xl shadow flex items-center space-x-4">
+        <div class="text-4xl text-indigo-600">📘</div>
+        <div>
+          <p class="text-gray-500">Notes Uploaded</p>
+          <p class="text-2xl font-bold">{{ stats.notes }}</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow flex items-center space-x-4">
+        <div class="text-4xl text-purple-600">🎥</div>
+        <div>
+          <p class="text-gray-500">Videos Uploaded</p>
+          <p class="text-2xl font-bold">{{ stats.videos }}</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow flex items-center space-x-4">
+        <div class="text-4xl text-blue-600">👥</div>
+        <div>
+          <p class="text-gray-500">Students Registered</p>
+          <p class="text-2xl font-bold">{{ stats.students }}</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RECENT UPLOADS -->
+    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Recent Uploads</h2>
+
+    <div class="space-y-4">
+      {% for item in recent %}
+      <div class="bg-white p-5 rounded-xl shadow flex justify-between items-center">
+        <div>
+          <p class="font-semibold text-lg">{{ item.title }}</p>
+          <p class="text-sm text-gray-500">
+            {{ item.type }} • Uploaded on {{ item.date }}
+          </p>
+        </div>
+        <a href="{{ item.link }}" class="text-indigo-600 hover:underline">View</a>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+
+</body>
+
+</html>

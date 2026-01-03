@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ test.title }} - Results</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+
+    {% include 'nav_admin.html' %}
+
+    <div class="max-w-5xl mx-auto pt-28 px-6">
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">
+            Results – {{ test.title }}
+        </h1>
+
+        <div class="flex justify-between items-center mb-4">
+            <p class="text-gray-600">{{ test.course }} • {{ test.subject }} • Sem {{ test.semester }}</p>
+
+            <a href="/admin/mcq_tests/{{ test._id }}/export"
+                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                Export CSV
+            </a>
+        </div>
+
+        <div class="bg-white shadow rounded-xl p-6">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b">
+                        <th class="p-3">Student Name</th>
+                        <th class="p-3">Roll No</th>
+                        <th class="p-3">Email</th>
+                        <th class="p-3">Marks</th>
+                        <th class="p-3">Submitted At</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for r in results %}
+                    <tr class="border-b hover:bg-gray-100">
+                        <td class="p-3">{{ r.student_name }}</td>
+                        <td class="p-3">{{ r.roll_no }}</td>
+                        <td class="p-3">{{ r.student_email }}</td>
+                        <td class="p-3 font-semibold">{{ r.marks }}/{{ r.total }}</td>
+                        <td class="p-3">{{ r.submitted_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Video - Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+
+  {% if session.get('role') == 'admin' %}
+  {% include 'nav_admin.html' %}
+  {% else %}
+  {% include 'nav_student.html' %}
+  {% endif %}
+
+  <div class="max-w-4xl mx-auto mt-32 bg-white p-8 rounded-xl shadow-lg">
+
+    <h2 class="text-3xl font-bold text-indigo-600 mb-8">
+      Upload Video Lecture (Admin)
+    </h2>
+
+    <form action="/admin/upload_video" method="POST" class="space-y-6">
+
+      <!-- Course -->
+      <div>
+        <label class="block font-semibold mb-2">Course</label>
+        <select id="courseSelect" name="course" class="w-full p-3 border rounded" required>
+          <option value="">Select Course</option>
+          <option value="MCA">MCA</option>
+          <option value="MBA">MBA</option>
+          <option value="IMCA">IMCA</option>
+        </select>
+      </div>
+
+      <!-- Subject -->
+      <div>
+        <label class="block font-semibold mb-2">Subject</label>
+        <select id="subjectSelect" name="subject_id" class="w-full p-3 border rounded" required disabled>
+          <option value="">Select Subject</option>
+        </select>
+      </div>
+
+      <!-- Chapter -->
+      <div>
+        <label class="block font-semibold mb-2">Chapter</label>
+        <select id="chapterSelect" name="chapter_id" class="w-full p-3 border rounded" required disabled>
+          <option value="">Select Chapter</option>
+        </select>
+      </div>
+
+
+      <!-- Video Title -->
+      <input type="hidden" name="title" id="videoTitle">
+
+
+      <!-- YouTube URL -->
+      <div>
+        <label class="block text-lg font-semibold mb-2">YouTube Video URL</label>
+        <input type="text" name="url" placeholder="https://youtube.com/watch?v=xxxx"
+          class="w-full p-3 border rounded-lg" required>
+      </div>
+
+      <!-- Divisions -->
+      <div>
+        <label class="block font-semibold mb-2">Divisions</label>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {% for d in ["A","B","C","D"] %}
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="divisions" value="{{ d }}" class="w-4 h-4">
+            {{ d }}
+          </label>
+          {% endfor %}
+        </div>
+
+        <p class="text-sm text-gray-500 mt-2">
+          Select one or more divisions
+        </p>
+      </div>
+
+
+
+
+
+      <!-- Semester -->
+      <div>
+        <label class="block text-lg font-semibold mb-2">Semester</label>
+        <select name="semester" class="w-full p-3 border rounded-lg" required>
+          <option value="Sem 1">Sem 1</option>
+          <option value="Sem 2">Sem 2</option>
+          <option value="Sem 3">Sem 3</option>
+          <option value="Sem 4">Sem 4</option>
+        </select>
+      </div>
+
+
+
+      <button class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-lg font-semibold">
+        submit
+      </button>
+
+    </form>
+
+  </div>
+
+  <script>
+    const courseSelect = document.getElementById("courseSelect");
+    const subjectSelect = document.getElementById("subjectSelect");
+    const chapterSelect = document.getElementById("chapterSelect");
+
+    courseSelect.addEventListener("change", async () => {
+      subjectSelect.innerHTML = '<option value="">Loading...</option>';
+      subjectSelect.disabled = true;
+
+      chapterSelect.innerHTML = '<option value="">Select Chapter</option>';
+      chapterSelect.disabled = true;
+
+      if (!courseSelect.value) return;
+
+      const res = await fetch(`/api/subjects/${courseSelect.value}`);
+      const data = await res.json();
+
+      subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+      data.forEach(s => {
+        subjectSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+      });
+
+      subjectSelect.disabled = false;
+    });
+
+
+    subjectSelect.addEventListener("change", async () => {
+      chapterSelect.innerHTML = "<option>Loading...</option>";
+      chapterSelect.disabled = true;
+
+      if (!subjectSelect.value) return;
+
+      const res = await fetch(`/api/chapters/${subjectSelect.value}`);
+      const data = await res.json();
+
+      chapterSelect.innerHTML = '<option value="">Select Chapter</option>';
+      data.forEach(c => {
+        chapterSelect.innerHTML += `
+      <option value="${c._id}">
+        Chapter ${c.chapter_no}: ${c.title}
+      </option>`;
+      });
+
+      chapterSelect.disabled = false;
+    });
+
+  </script>
+
+  <script>
+    subjectSelect.addEventListener("change", async () => {
+      chapterSelect.innerHTML = "<option>Loading...</option>";
+      chapterSelect.disabled = true;
+
+      const res = await fetch(`/api/chapters/${subjectSelect.value}`);
+      const data = await res.json();
+
+      chapterSelect.innerHTML = '<option value="">Select Chapter</option>';
+      data.forEach(c => {
+        chapterSelect.innerHTML += `
+      <option value="${c._id}" data-title="${c.title}">
+        Chapter ${c.chapter_no}: ${c.title}
+      </option>`;
+      });
+
+      chapterSelect.disabled = false;
+    });
+
+    chapterSelect.addEventListener("change", () => {
+      const selected = chapterSelect.options[chapterSelect.selectedIndex];
+      document.getElementById("videoTitle").value = selected.dataset.title || "";
+    });
+  </script>
+
+
+</body>
+
+</html>

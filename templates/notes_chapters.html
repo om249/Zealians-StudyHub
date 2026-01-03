@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>{{ subject.name }} – Chapters</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+
+  {% if session.get('role') in ['admin', 'faculty'] %}
+  {% include 'nav_admin.html' %}
+  {% else %}
+  {% include 'nav_student.html' %}
+  {% endif %}
+
+
+
+  <div class="pt-32 max-w-5xl mx-auto px-6">
+
+    <a href="/notes" class="inline-flex items-center gap-2 text-indigo-600  hover:text-red-500 font-bold text-lg">
+      ← Back
+    </a>
+
+    <!-- SUBJECT TITLE -->
+    <h1 class="text-4xl font-bold text-indigo-600 mb-8 text-center">
+      {{ subject.name }}
+    </h1>
+
+    <!-- ADD CHAPTER (ADMIN / FACULTY ONLY) -->
+    {% if session.get('role') in ['admin', 'faculty'] %}
+    <div class="mb-10 text-center">
+
+      <!-- Toggle Button -->
+      <button onclick="toggleChapterForm()"
+        class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+        + Add Chapter
+      </button>
+
+      <!-- Hidden Form -->
+      <div id="chapterForm" class="hidden max-w-3xl mx-auto bg-white p-6 rounded-xl shadow mt-6">
+
+        <h2 class="text-xl font-semibold mb-4 text-left">Add Chapter</h2>
+
+        <form method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input type="number" name="chapter_no" min="1" required placeholder="Chapter No" class="border p-2 rounded">
+
+          <input type="text" name="title" required placeholder="Chapter Title" class="border p-2 rounded md:col-span-2">
+
+          <button class="md:col-span-3 bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">
+            Save Chapter
+          </button>
+        </form>
+
+      </div>
+    </div>
+    {% endif %}
+
+
+    <!-- CHAPTER LIST -->
+    {% if chapters|length == 0 %}
+    <p class="text-center text-gray-500">
+      No chapters available yet.
+    </p>
+    {% else %}
+    <div class="space-y-4">
+
+      {% for c in chapters %}
+      <a href="/notes/chapter/{{ c._id }}"
+        class="block bg-white p-6 rounded-xl shadow hover:shadow-lg hover:border-indigo-500 border transition">
+
+        <p class="text-sm text-gray-500">
+          Chapter {{ c.chapter_no }}
+        </p>
+
+        <h2 class="text-xl font-semibold text-gray-800">
+          {{ c.title }}
+        </h2>
+
+      </a>
+      {% endfor %}
+
+
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- TOGGLE SCRIPT -->
+  <script>
+    function toggleChapterForm() {
+      document.getElementById("chapterForm").classList.toggle("hidden");
+    }
+  </script>
+
+</body>
+
+</html>

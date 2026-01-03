@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login — Zealians StudyHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        .input-success {
+            border-color: #22c55e !important;
+        }
+
+        .input-error {
+            border-color: #ef4444 !important;
+        }
+
+        body {
+            background: radial-gradient(circle at 10% 10%, #eef2ff 0%, transparent 20%),
+                radial-gradient(circle at 90% 90%, #f3f7ff 0%, transparent 20%);
+        }
+
+        .shake {
+            animation: shake 0.2s ease-in-out 0s 2;
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-4px);
+            }
+
+            50% {
+                transform: translateX(4px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+    </style>
+
+</head>
+
+<body class="min-h-screen flex items-center justify-center">
+
+    <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+
+        <!-- LEFT PANEL -->
+        <div class="bg-gradient-to-br from-indigo-50 to-white shadow-md rounded-2xl p-10">
+            <h1 class="text-4xl font-bold text-indigo-700 mb-4">Welcome Back</h1>
+            <p class="text-gray-600 leading-relaxed text-lg">
+                Login to access your dashboard, notes, videos, and tests.
+            </p>
+
+
+        </div>
+
+        <!-- LOGIN CARD -->
+        <div class="bg-white shadow-xl rounded-2xl p-10">
+
+            <h2 class="text-3xl font-semibold text-gray-900 mb-6">Login</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="mb-4 p-3 rounded
+        {% if category == 'error' %} bg-red-100 text-red-700
+        {% elif category == 'warning' %} bg-yellow-100 text-yellow-700
+        {% elif category == 'success' %} bg-green-100 text-green-700
+        {% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+
+            <form id="loginForm" method="POST" action="/login" class="space-y-5">
+
+                <!-- EMAIL -->
+                <div>
+                    <label class="text-gray-700 font-medium">Email</label>
+                    <input id="email" type="email" name="email"
+                        class="w-full p-3 border rounded-lg focus:ring-indigo-500" placeholder="Enter your email"
+                        required>
+                    <p id="emailError" class="text-red-500 text-sm mt-1 hidden"></p>
+                </div>
+
+                <!-- PASSWORD -->
+                <div>
+                    <label class="text-gray-700 font-medium flex justify-between">
+                        <span>Password</span>
+                        <span id="togglePassword" class="text-indigo-600 cursor-pointer">Show</span>
+                    </label>
+
+                    <input id="password" type="password" name="password"
+                        class="w-full p-3 border rounded-lg focus:ring-indigo-500" placeholder="Enter your password"
+                        required>
+
+                    <p id="passwordError" class="text-red-500 text-sm mt-1 hidden"></p>
+                </div>
+
+                <!-- BUTTON -->
+                <button type="submit" id="loginBtn"
+                    class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition">
+                    Login
+                </button>
+
+            </form>
+
+
+            <p class="text-center mt-4 text-gray-600">
+                Don't have an account?
+                <a href="/signup" class="text-indigo-600 font-medium">Create an account</a>
+            </p>
+
+        </div>
+    </div>
+
+    <script>
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const emailError = document.getElementById("emailError");
+        const passwordError = document.getElementById("passwordError");
+
+        /* SHOW / HIDE PASSWORD */
+        document.getElementById("togglePassword").addEventListener("click", () => {
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                togglePassword.textContent = "Hide";
+            } else {
+                passwordInput.type = "password";
+                togglePassword.textContent = "Show";
+            }
+        });
+
+        /* VALIDATION */
+        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            emailInput.classList.remove("input-error", "input-success");
+            passwordInput.classList.remove("input-error", "input-success");
+            emailError.classList.add("hidden");
+            passwordError.classList.add("hidden");
+
+            const res = await fetch("/check_login_credentials", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: emailInput.value.trim(),
+                    password: passwordInput.value.trim()
+                })
+            });
+
+            const d = await res.json();
+
+            if (d.status === "email_not_found") {
+                emailInput.classList.add("input-error", "shake");
+                emailError.textContent = "Email not found.";
+                emailError.classList.remove("hidden");
+                return;
+            }
+            if (d.status === "wrong_password") {
+                passwordInput.classList.add("input-error", "shake");
+                passwordError.textContent = "Incorrect password.";
+                passwordError.classList.remove("hidden");
+                return;
+            }
+            if (d.status === "not_verified") {
+                emailInput.classList.add("input-error");
+                emailError.textContent = "Please verify your email.";
+                emailError.classList.remove("hidden");
+                return;
+            }
+
+            // SUCCESS
+            emailInput.classList.add("input-success");
+            passwordInput.classList.add("input-success");
+
+            setTimeout(() => document.getElementById("loginForm").submit(), 300);
+        });
+    </script>
+
+</body>
+
+</html>

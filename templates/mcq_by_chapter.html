@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>{{ chapter.title }} – MCQ Tests</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+
+  {% if session.get('role') in ['admin', 'faculty'] %}
+  {% include 'nav_admin.html' %}
+  {% else %}
+  {% include 'nav_student.html' %}
+  {% endif %}
+
+  <main class="pt-32 max-w-6xl mx-auto px-6">
+    <!-- HEADER -->
+
+
+    <a href="/mcq/{{ subject._id }}"
+      class="inline-flex items-center gap-2 text-indigo-600 hover:text-red-500 font-bold text-lg ">
+      ← Back
+    </a>
+
+
+    <h1 class="text-3xl font-bold mb-2 text-indigo-600 text-center">
+      {{ chapter.title }}
+    </h1>
+
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-indigo-700">MCQ Tests</h1>
+      {% if session.get('role') in ['admin', 'faculty'] %}
+      <a href="/admin/mcq/create" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">
+        + Create New Test
+      </a>
+      {% endif %}
+    </div>
+
+    <!-- TEST LIST -->
+    {% if tests|length == 0 %}
+    <p class="text-gray-500">
+      No MCQ tests available for this chapter.
+    </p>
+    {% else %}
+    <div class="space-y-4">
+      {% for test in tests %}
+      <div class="bg-white p-6 rounded-xl shadow flex justify-between items-center">
+
+        <div>
+          <h2 class="text-lg font-semibold">
+            {{ test.title }}
+          </h2>
+
+          <p class="text-sm text-gray-500">
+            {{ test.course }} • {{ subject.name }} • {{ test.semester }}
+          </p>
+
+          <p class="text-sm text-gray-500">
+            Questions: {{ test.questions|length }} • Duration: {{ test.duration }} min
+          </p>
+
+
+        </div>
+
+        <div class="flex gap-3">
+
+          {% if session.get('role') == 'student' %}
+
+          {% if test._id|string in attempted_test_ids %}
+          <!-- VIEW RESULT -->
+          <a href="/mcq_results/view/{{ test._id }}"
+            class="px-5 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+            View Result →
+          </a>
+          {% else %}
+          <!-- START TEST -->
+          <a href="/mcq_test/{{ test._id }}" class="px-5 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+            Start Test →
+          </a>
+          {% endif %}
+
+          {% endif %}
+
+
+          <!-- ADMIN / FACULTY -->
+          {% if session.get('role') in ['admin', 'faculty'] %}
+          <a href="/admin/mcq_tests/{{ test._id }}/results"
+            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            View Results
+          </a>
+
+          <a href="/admin/mcq_tests/{{ test._id }}/export"
+            class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+            Export Results
+          </a>
+          {% endif %}
+
+        </div>
+      </div>
+
+
+    </div>
+    {% endfor %}
+    </div>
+    {% endif %}
+
+  </main>
+
+</body>
+
+</html>

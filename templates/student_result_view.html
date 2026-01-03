@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Your Test Result</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    {% include 'nav_student.html' %}
+
+    <div class="max-w-4xl mx-auto pt-28 px-6">
+
+        <!-- TEST SUMMARY -->
+        <div class="bg-white p-6 rounded-xl shadow mb-8">
+            <h1 class="text-2xl font-bold text-indigo-700">
+                {{ test.title }}
+            </h1>
+
+            <p class="text-gray-600">
+                {{ test.course }} • {{ test.subject }} • {{ test.semester }}
+            </p>
+
+            <p class="mt-2 text-lg font-semibold">
+                Score:
+                <span class="text-indigo-700">{{ result.marks }}</span> /
+                <span class="text-gray-700">{{ result.total }}</span>
+            </p>
+        </div>
+
+        <!-- QUESTIONS -->
+        {% for ans in result.answers %}
+        {% set q = test.questions[loop.index0] %}
+
+        <div class="bg-white p-6 rounded-xl shadow mb-6">
+            <h3 class="font-semibold text-lg mb-4">
+                Q{{ loop.index }}. {{ q.question }}
+            </h3>
+
+            {% set options = {
+            'A': q.A,
+            'B': q.B,
+            'C': q.C,
+            'D': q.D
+            } %}
+
+            <div class="space-y-2">
+                {% for key, value in options.items() %}
+
+                {% if key == q.correct %}
+                <!-- CORRECT ANSWER -->
+                <div class="p-2 rounded bg-green-100 text-green-800 font-semibold">
+                    ✅ {{ key }}. {{ value }}
+                </div>
+
+                {% elif key == ans.selected %}
+                <!-- WRONG SELECTED -->
+                <div class="p-2 rounded bg-red-100 text-red-700">
+                    ❌ {{ key }}. {{ value }}
+                </div>
+
+                {% else %}
+                <!-- NORMAL -->
+                <div class="p-2 rounded border text-gray-700">
+                    {{ key }}. {{ value }}
+                </div>
+                {% endif %}
+
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Video Lectures</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    let typingTimer;
+    function delaySubmit() {
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(() => {
+        document.getElementById("videoFilterForm").submit();
+      }, 400); // delay for smooth typing
+    }
+  </script>
+</head>
+
+<body class="bg-gray-50">
+
+  {% if session.get('role') in ['admin', 'faculty'] %}
+  {% include 'nav_admin.html' %}
+  {% else %}
+  {% include 'nav_student.html' %}
+  {% endif %}
+
+
+  <div class="max-w-7xl mx-auto pt-28 px-6">
+
+    <h1 class="text-3xl font-semibold text-gray-800 mb-6">Video Lectures</h1>
+
+    {% if session.get('role') == 'admin' %}
+    <a href="/admin/upload_video"
+      class="mb-6 inline-block px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+      Upload Video
+    </a>
+    {% endif %}
+
+    <!-- FILTER FORM -->
+    <form id="videoFilterForm" method="GET" action="/videos" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+
+      <!-- Course Filter -->
+      <select name="course" class="p-3 border rounded w-full" onchange="this.form.submit()">
+        <option value="all" {% if selected_course=='all' %}selected{% endif %}>All Courses</option>
+        <option value="MCA" {% if selected_course=='MCA' %}selected{% endif %}>MCA</option>
+        <option value="MBA" {% if selected_course=='MBA' %}selected{% endif %}>MBA</option>
+        <option value="IMCA" {% if selected_course=='IMCA' %}selected{% endif %}>Integrated MCA</option>
+      </select>
+
+      <!-- Semester Filter -->
+      <select name="semester" class="p-3 border rounded w-full" onchange="this.form.submit()">
+        <option value="all" {% if selected_semester=='all' %}selected{% endif %}>All Semesters</option>
+        <option value="Sem 1" {% if selected_semester=='Sem 1' %}selected{% endif %}>Sem 1</option>
+        <option value="Sem 2" {% if selected_semester=='Sem 2' %}selected{% endif %}>Sem 2</option>
+        <option value="Sem 3" {% if selected_semester=='Sem 3' %}selected{% endif %}>Sem 3</option>
+        <option value="Sem 4" {% if selected_semester=='Sem 4' %}selected{% endif %}>Sem 4</option>
+      </select>
+
+      <!-- Search Bar -->
+      <input type="text" name="search" placeholder="Search video title..." value="{{ search }}"
+        class="p-3 border rounded w-full" onkeyup="delaySubmit()">
+    </form>
+
+    <!-- NO RESULTS FOUND -->
+    {% if videos|length == 0 %}
+    <div class="text-center py-20">
+      <h2 class="text-2xl font-bold text-red-600">No Videos Found</h2>
+      <p class="text-gray-500 mt-2">Try changing your filters or search keywords.</p>
+
+      <a href="/videos" class="mt-4 inline-block px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+        Back to All Videos
+      </a>
+    </div>
+
+    {% else %}
+
+    <!-- VIDEO GRID -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      {% for v in videos %}
+      <div class="bg-white shadow rounded-lg overflow-hidden hover:shadow-xl transition">
+
+        <!-- THUMBNAIL -->
+        <a href="/videos/{{ v._id }}">
+          <img src="https://img.youtube.com/vi/{{ v.url.split('v=')[1] }}/0.jpg" alt="Thumbnail"
+            class="w-full h-48 object-cover">
+        </a>
+
+        <div class="p-4">
+          <h3 class="text-lg font-semibold mb-1">{{ v.title }}</h3>
+          <p class="text-sm text-gray-600">{{ v.category }} • {{ v.semester }}</p>
+
+          <a href="/videos/{{ v._id }}"
+            class="mt-3 inline-block px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+            Watch Video →
+          </a>
+        </div>
+
+      </div>
+      {% endfor %}
+
+    </div>
+    {% endif %}
+
+  </div>
+
+</body>
+
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>MCQ Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    {% if session.get('role') == 'admin' %}
+    {% include 'nav_admin.html' %}
+    {% else %}
+    {% include 'nav_student.html' %}
+    {% endif %}
+
+    <div class="max-w-4xl mx-auto pt-32 px-6">
+
+        <!-- TEST HEADER -->
+        <div class="bg-white p-6 rounded-xl shadow mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">
+                MCQ Test – {{ test.title }}
+            </h1>
+
+            <p class="text-gray-600 mt-1">
+                {{ test.course }} • {{ test.subject }} • {{ test.semester }}
+            </p>
+
+            {% if test.duration > 0 %}
+            <p class="mt-2 text-red-600 font-semibold text-lg">
+                Time Limit: {{ test.duration }} Minutes
+            </p>
+
+            <div id="timer" class="mt-2 text-xl font-bold text-indigo-600"></div>
+
+            {% else %}
+            <p class="mt-2 text-green-600 font-semibold text-lg">
+                No Time Limit
+            </p>
+            {% endif %}
+        </div>
+
+
+        <!-- MCQ FORM -->
+        <!-- <form id="mcqForm" action="/mcq/submit/{{ test._id }}" method="POST" class="space-y-6"> -->
+        <form id="mcqForm" action="/mcq_test/{{ test._id }}" method="POST" class="space-y-6">
+
+
+            {% for q in test.questions %}
+            <div class="bg-white p-6 rounded-xl shadow">
+
+                <!-- QUESTION -->
+                <p class="text-lg font-semibold">Q{{ q.qno }}. {{ q.question }}</p>
+
+                <div class="mt-4 space-y-2">
+
+                    <!-- Option A -->
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="q_{{ loop.index0 }}" value="A" class="w-4 h-4">
+                        <span>A) {{ q.A }}</span>
+                    </label>
+
+                    <!-- Option B -->
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="q_{{ loop.index0 }}" value="B" class="w-4 h-4">
+                        <span>B) {{ q.B }}</span>
+                    </label>
+
+                    <!-- Option C -->
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="q_{{ loop.index0 }}" value="C" class="w-4 h-4">
+                        <span>C) {{ q.C }}</span>
+                    </label>
+
+                    <!-- Option D -->
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="q_{{ loop.index0 }}" value="D" class="w-4 h-4">
+                        <span>D) {{ q.D }}</span>
+                    </label>
+
+                </div>
+
+            </div>
+            {% endfor %}
+
+            <button id="submitBtn"
+                class="w-full bg-indigo-600 text-white py-3 rounded-xl text-lg font-semibold hover:bg-indigo-700">
+                Submit Test
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- TIMER SCRIPT -->
+    <script>
+        {% if test.duration > 0 %}
+        let timeLeft = {{ test.duration }} * 60;
+        let timerElement = document.getElementById("timer");
+
+        let timer = setInterval(() => {
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+
+            timerElement.textContent =
+                `Time Left: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                document.getElementById("mcqForm").submit();
+            }
+
+            timeLeft--;
+        }, 1000);
+        {% endif %}
+    </script>
+
+</body>
+
+</html>

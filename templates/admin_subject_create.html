@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Add Subject</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+  {% include 'nav_admin.html' %}
+  {% include 'nav.html' %}
+
+  <div class="max-w-xl mx-auto pt-28 px-6">
+
+    <div class="bg-white p-8 rounded-xl shadow">
+      <h2 class="text-2xl font-bold mb-6">Add New Subject</h2>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+      <div class="mb-4 p-3 rounded
+          {% if category == 'error' %}bg-red-100 text-red-700
+          {% else %}bg-green-100 text-green-700{% endif %}">
+        {{ message }}
+      </div>
+      {% endfor %}
+      {% endwith %}
+
+      <form method="POST" class="space-y-4">
+
+        <div>
+          <label class="font-semibold">Course</label>
+          <select name="course" required class="w-full border p-2 rounded">
+            <option value="">Select Course</option>
+            <option value="MCA">MCA</option>
+            <option value="MBA">MBA</option>
+            <option value="IMCA">Integrated MCA</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="font-semibold">Subject Name</label>
+          <input name="name" required placeholder="Eg: Data Structures" class="w-full border p-2 rounded">
+        </div>
+
+        <button class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">
+          Add Subject
+        </button>
+
+      </form>
+    </div>
+
+  </div>
+
+</body>
+
+</html>

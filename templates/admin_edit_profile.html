@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Profile - Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+  {% include 'nav_admin.html' %}
+  {% include 'nav.html' %}
+
+  <div class="max-w-3xl mx-auto pt-28 px-6">
+
+    <div class="bg-white shadow-xl p-8 rounded-2xl border">
+
+      <h2 class="text-3xl font-semibold mb-8">Edit Profile</h2>
+
+      <form action="/admin/profile/update" method="POST" enctype="multipart/form-data" class="space-y-6">
+
+
+
+        <hr class="my-4">
+
+        <!-- Name -->
+        <div>
+          <label class="block font-semibold mb-1">Full Name</label>
+          <input type="text" name="name" value="{{ admin.name }}" class="w-full border p-3 rounded-lg" required />
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block font-semibold mb-1">Email</label>
+          <input type="email" name="email" value="{{ admin.email }}" class="w-full border p-3 rounded-lg" required />
+        </div>
+
+        <!-- Department -->
+        <div>
+          <label class="block font-semibold mb-1">Department</label>
+          <select name="department" class="w-full border p-3 rounded-lg">
+            <option {{ "selected" if admin.department=="MCA" else "" }}>MCA</option>
+            <option {{ "selected" if admin.department=="MBA" else "" }}>MBA</option>
+            <option {{ "selected" if admin.department=="IMCA" else "" }}>Integrated MCA</option>
+            <option {{ "selected" if admin.department=="Computer Science" else "" }}>Computer Science</option>
+            <option {{ "selected" if admin.department=="IT" else "" }}>Information Technology</option>
+          </select>
+        </div>
+
+        <!-- Division -->
+        <div>
+          <label class="block font-semibold mb-1">Student Division</label>
+          <select name="division" class="w-full border p-3 rounded-lg">
+            <option value="">Not Applicable</option>
+            <option value="A" {{ "selected" if admin.division=="A" else "" }}>A</option>
+            <option value="B" {{ "selected" if admin.division=="B" else "" }}>B</option>
+            <option value="C" {{ "selected" if admin.division=="C" else "" }}>C</option>
+            <option value="D" {{ "selected" if admin.division=="D" else "" }}>D</option>
+          </select>
+        </div>
+
+        <!-- Subject -->
+        <div>
+          <label class="block font-semibold mb-1">Subject</label>
+          <input type="text" name="subject" value="{{ admin.subject }}" placeholder="Eg: Data Structures, DBMS, Python"
+            class="w-full border p-3 rounded-lg" />
+        </div>
+
+        <!-- Position -->
+        <div>
+          <label class="block font-semibold mb-1">Position</label>
+          <select name="position" class="w-full border p-3 rounded-lg">
+            <option {{ "selected" if admin.position=="Admin" else "" }}>Admin</option>
+            <option {{ "selected" if admin.position=="Faculty" else "" }}>Faculty</option>
+            <option {{ "selected" if admin.position=="HOD" else "" }}>Head of Department</option>
+          </select>
+        </div>
+
+        <!-- Submit -->
+        <button class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 text-lg">
+          Save Changes
+        </button>
+
+      </form>
+    </div>
+
+  </div>
+
+</body>
+
+</html>

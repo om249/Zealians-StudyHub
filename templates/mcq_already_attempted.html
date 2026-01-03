@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Test Already Attempted</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+
+  {% include 'nav_student.html' %}
+
+  <main class="pt-28 max-w-4xl mx-auto px-6">
+
+    <div class="bg-white p-8 rounded-xl shadow">
+
+      <!-- HEADER -->
+      <h1 class="text-2xl font-bold text-indigo-600 mb-2">
+        {{ test.title }}
+      </h1>
+
+      <p class="text-gray-600 mb-4">
+        You have already attempted this test.
+      </p>
+
+      <p class="text-lg font-semibold mb-6">
+        Score: {{ result.marks }} / {{ result.total }}
+      </p>
+
+      <hr class="mb-6">
+
+      <!-- DETAILED RESULT -->
+      <h2 class="text-xl font-bold mb-4">
+        Detailed Result
+      </h2>
+
+      {% for ans in result.answers %}
+      {% set q = test.questions[loop.index0] %}
+
+      <div class="mb-6 p-4 border rounded-lg">
+
+        <p class="font-semibold mb-3">
+          {{ loop.index }}. {{ q.question }}
+        </p>
+
+        {% for key in ['A','B','C','D'] %}
+
+        {% if key == ans.correct %}
+        <p class="text-green-600 font-semibold">
+          ✔ {{ key }}. {{ q[key] }} (Correct)
+        </p>
+
+        {% elif key == ans.selected %}
+        <p class="text-red-600">
+          ✖ {{ key }}. {{ q[key] }} (Your Answer)
+        </p>
+
+        {% else %}
+        <p class="text-gray-700">
+          {{ key }}. {{ q[key] }}
+        </p>
+        {% endif %}
+
+        {% endfor %}
+
+      </div>
+      {% endfor %}
+
+      <!-- ACTION BUTTONS -->
+      <div class="mt-6 flex gap-4">
+        <a href="/mcq_results" class="px-5 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+          My Results
+        </a>
+
+        <a href="/mcq" class="px-5 py-2 bg-gray-200 rounded hover:bg-gray-300">
+          Back to MCQ Tests
+        </a>
+      </div>
+
+    </div>
+
+  </main>
+
+</body>
+
+</html>

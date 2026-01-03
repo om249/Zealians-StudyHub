@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Notes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+
+  {% if session.get('role') in ['admin', 'faculty'] %}
+  {% include 'nav_admin.html' %}
+  {% else %}
+  {% include 'nav_student.html' %}
+  {% endif %}
+
+  <main class="pt-28 max-w-4xl mx-auto px-6">
+
+    <!-- HEADER -->
+    <h1 class="text-3xl font-bold text-indigo-600 mb-8">
+      Upload Notes
+    </h1>
+
+    <!-- FORM -->
+    <form method="POST" enctype="multipart/form-data" class="bg-white p-8 rounded-xl shadow space-y-6">
+
+      <!-- COURSE -->
+      <div>
+        <label class="block font-semibold mb-2">Course</label>
+        <select name="category" id="courseSelect" required class="w-full border p-3 rounded">
+          <option value="">Select Course</option>
+          <option value="MCA">MCA</option>
+          <option value="MBA">MBA</option>
+          <option value="IMCA">Integrated MCA</option>
+        </select>
+      </div>
+
+      <!-- SUBJECT -->
+      <div>
+        <label class="block font-semibold mb-2">Subject</label>
+        <select name="subject_id" id="subjectSelect" required disabled class="w-full border p-3 rounded ">
+          <option value="">Select Subject</option>
+        </select>
+      </div>
+
+      <!-- CHAPTER -->
+      <div>
+        <label class="block font-semibold mb-2">Chapter</label>
+        <select name="chapter_id" id="chapterSelect" required disabled class="w-full border p-3 rounded ">
+          <option value="">Select Chapter</option>
+        </select>
+      </div>
+
+      <!-- TITLE -->
+      <div>
+        <label class="block font-semibold mb-2">
+          Title
+        </label>
+        <input type="text" name="title" placeholder="e.g. Introduction Notes, Unit 1 Summary" required
+          class="w-full border p-3 rounded ">
+      </div>
+
+
+
+      <!-- DESCRIPTION -->
+      <div>
+        <label class="block font-semibold mb-2">
+          Description <span class="text-gray-400">(optional)</span>
+        </label>
+        <textarea name="description" placeholder="Short description of notes"
+          class="w-full border p-3 rounded"></textarea>
+      </div>
+
+      <!-- DIVISION -->
+      <div>
+        <label class="block font-semibold mb-2">Divisions</label>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {% for d in ["A","B","C","D"] %}
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="divisions" value="{{ d }}" class="w-4 h-4">
+            {{ d }}
+          </label>
+          {% endfor %}
+        </div>
+
+        <p class="text-sm text-gray-500 mt-2">
+          Select one or more divisions
+        </p>
+      </div>
+
+
+
+      <!-- SEMESTER -->
+      <div>
+        <label class="block font-semibold mb-2">Semester</label>
+        <select name="semester" class="w-full border p-3 rounded">
+          <option value="">Select Semester</option>
+          <option>Sem 1</option>
+          <option>Sem 2</option>
+          <option>Sem 3</option>
+          <option>Sem 4</option>
+        </select>
+      </div>
+
+      <!-- FILE -->
+      <div>
+        <label class="block font-semibold mb-2">Upload Notes</label>
+        <input type="file" name="file" required class="w-full border p-3 rounded">
+      </div>
+
+      <!-- SUBMIT -->
+      <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg text-lg hover:bg-indigo-700">
+        Submit
+      </button>
+
+    </form>
+
+  </main>
+
+  <!-- SCRIPT -->
+  <script>
+    const courseSelect = document.getElementById("courseSelect");
+    const subjectSelect = document.getElementById("subjectSelect");
+    const chapterSelect = document.getElementById("chapterSelect");
+
+    /* COURSE → SUBJECT */
+    courseSelect.addEventListener("change", () => {
+      const course = courseSelect.value;
+
+      subjectSelect.disabled = true;
+      chapterSelect.disabled = true;
+
+      subjectSelect.innerHTML = "<option>Loading...</option>";
+      chapterSelect.innerHTML = "<option value=''>Select Chapter</option>";
+
+      if (!course) return;
+
+      fetch(`/api/subjects/${course}`)
+        .then(res => res.json())
+        .then(data => {
+          subjectSelect.innerHTML = "<option value=''>Select Subject</option>";
+          data.forEach(s => {
+            subjectSelect.innerHTML += `
+          <option value="${s.id}">${s.name}</option>
+        `;
+          });
+          subjectSelect.disabled = false;
+        });
+    });
+
+    /* SUBJECT → CHAPTER */
+    subjectSelect.addEventListener("change", () => {
+      const subjectId = subjectSelect.value;
+
+      chapterSelect.disabled = true;
+      chapterSelect.innerHTML = "<option>Loading...</option>";
+
+      if (!subjectId) return;
+
+      fetch(`/api/chapters/${subjectId}`)
+        .then(res => res.json())
+        .then(data => {
+          chapterSelect.innerHTML = "<option value=''>Select Chapter</option>";
+
+          data.forEach(c => {
+            chapterSelect.innerHTML += `
+          <option value="${c._id}">
+            Chapter ${c.chapter_no} – ${c.title}
+          </option>
+        `;
+          });
+
+          chapterSelect.disabled = false;
+        })
+        .catch(err => {
+          chapterSelect.innerHTML = "<option>Error loading chapters</option>";
+          console.error(err);
+        });
+    });
+  </script>
+
+
+</body>
+
+</html>

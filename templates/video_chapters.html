@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>{{ subject.name }} – Video Chapters</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+
+  {% if session.get('role') in ['admin', 'faculty'] %}
+  {% include 'nav_admin.html' %}
+  {% else %}
+  {% include 'nav_student.html' %}
+  {% endif %}
+
+  <main class="pt-32 max-w-6xl mx-auto px-6">
+    <a href="/videos" class="inline-flex items-center gap-2 text-indigo-600  hover:text-red-500 font-bold text-lg">
+      ← Back
+    </a>
+
+    <h1 class="text-3xl font-bold mb-6 text-indigo-600 text-center">
+      {{ subject.name }} – Video Chapters
+    </h1>
+
+    {% if chapters|length == 0 %}
+    <p class="text-gray-500">No chapters available.</p>
+    {% else %}
+    <div class="space-y-4">
+      {% for c in chapters %}
+      <a href="/videos/chapter/{{ c._id }}" class="block bg-white p-5 rounded-xl shadow hover:shadow-md transition">
+        <p class="text-sm text-gray-500">
+          Chapter {{ c.chapter_no }}
+        </p>
+        <h2 class="text-lg font-semibold">
+          {{ c.title }}
+        </h2>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </main>
+</body>
+
+</html>
